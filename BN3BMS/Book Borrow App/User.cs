@@ -10,30 +10,41 @@ namespace Book_Borrow_App
     {
         public int Id { get; private set; }
         public string Name { get; private set; }
-        public List<BookInfo> BorrowedBookInfos { get; private set; }
+        public string BirthDate { get; private set; }
+        public char Sex { get; private set; }
+        public List<Book> BorrowedBooks { get; private set; }
 
         public User(int id, string name)
         {
             Id = id;
             Name = name;
-            BorrowedBookInfos = new();
+            BorrowedBooks = new();
         }
 
         public void Borrow(Book book)
         {
             book.Borrow();
-            BorrowedBookInfos.Add(book.Info);
+            BorrowedBooks.Add(book);
         }
 
         public void Return(Book book)
         {
             book.Return();
-            BorrowedBookInfos.Remove(book.Info);
+            BorrowedBooks.Remove(book);
         }
 
         public string Print()
         {
-            return $"(ID: {Id}) - {Name} - Borrowed Books: {string.Join(", ", BorrowedBookInfos.Select(b => b.Title))}";
+            return $"(ID: {Id}) - {Name}";
+        }
+
+        public string InfoPanel()
+        {
+            return $"ID: {Id}\n" +
+                $"\tName: {Name}\n" +
+                $"\tBirth Date: {BirthDate}\n" +
+                $"\tSex: {(Sex.Equals('M') ? "Male" : "Female")}\n" +
+                $"\tBorrowed Books: {string.Join(", ", BorrowedBooks.Select(b => b.Info.Title))}";
         }
     }
 

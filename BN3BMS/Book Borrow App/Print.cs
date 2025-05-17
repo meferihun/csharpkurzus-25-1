@@ -55,22 +55,22 @@ namespace Book_Borrow_App
             Console.ForegroundColor = ConsoleColor.Yellow;
             var title = _menuActions.Keys.ElementAt(0);
             Console.WriteLine(title);
-            Console.ResetColor();
+            Console.ResetColor(); 
 
-            int index = 1;
-            foreach (var option in _menuActions.Keys)
+                int index = 1; 
+            foreach (var option in _menuActions)
             {
-                if (option != title)
+                if (option.Key != title)
                 {
-                    if (index == CurrentIndex)
+                    if (index == CurrentIndex && option.Value != null)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"---> {option} <---");
+                        Console.WriteLine($"---> {option.Key} <---");
                         Console.ResetColor();
                     }
                     else
                     {
-                        Console.WriteLine($"     {option}     ");
+                        Console.WriteLine($"     {option.Key}     ");
                     }
                     index++;
                 }

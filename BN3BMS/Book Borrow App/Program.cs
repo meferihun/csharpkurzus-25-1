@@ -8,18 +8,25 @@ namespace Book_Borrow_App
 {
     internal class Program
     {
+        private static List<Book> books;
+        private static List<User> users;
+       
+
         static void Main()
         {
-            List<Book> books = FileManager.LoadBooks().Select(info => new Book(info)).ToList();
-            List<User> users = FileManager.LoadUsers();
+
+            
+
+            books = FileManager.LoadBooks().Select(info => new Book(info)).ToList();
+            users = FileManager.LoadUsers();
 
             var menuActions = new Dictionary<string, Action>
-            {
-                {"Library Book Borrow", () => { } },
-                { "Manage Books", () => ManageBooks(books) },
-                { "Manage Users", () => ManageUsers(users) },
-                { "Exit", () => Environment.Exit(0) }
-            };
+                {
+                    {"Library Book Borrow", () => { } },
+                    { "Manage Books", () => ManageBooks(books) },
+                    { "Manage Users", () => ManageUsers(users) },
+                    { "Exit", () => Environment.Exit(0) }
+                };
 
             var print = new Print(menuActions);
             print.PrintMenu();
@@ -28,15 +35,19 @@ namespace Book_Borrow_App
         private static void ManageBooks(List<Book> books)
         {
             var booksString = books.Select(book => book.Print()).ToList();
-            booksString.Insert(0, "Manage Books"); 
+            booksString.Insert(0, "Manage Books");
 
             var menuActions = new Dictionary<string, Action>();
             for (int i = 0; i <= books.Count; i++)
             {
-                int bookIndex = i - 1; 
-                menuActions[booksString.ElementAt(i)] = () => OpenBookInfoPanel(books.ElementAt(bookIndex));
+                int bookIndex = i - 1;
+                menuActions[booksString.ElementAt(i)] = () =>
+                {
+                    if (bookIndex >= 0)
+                        OpenBookInfoPanel(books.ElementAt(bookIndex));
+                };
             }
-            menuActions["Back to Main Menu"] = () => Main(); 
+            menuActions["Back to Main Menu"] = () => Main();
 
             var print = new Print(menuActions);
             print.PrintMenu();
@@ -44,13 +55,17 @@ namespace Book_Borrow_App
 
         private static void ManageUsers(List<User> users)
         {
-            var usersString = users.Select(book => book.Print()).ToList();
+            var usersString = users.Select(user => user.Print()).ToList();
             usersString.Insert(0, "Manage Users");
             var menuActions = new Dictionary<string, Action>();
             for (int i = 0; i <= users.Count; i++)
             {
                 int userIndex = i - 1;
-                menuActions[usersString.ElementAt(i)] = () => OpenUserInfoPanel(users.ElementAt(userIndex));
+                menuActions[usersString.ElementAt(i)] = () =>
+                {
+                    if (userIndex >= 0)
+                        OpenUserInfoPanel(users.ElementAt(userIndex));
+                };
             }
             menuActions["Back to Main Menu"] = () => Main();
 
@@ -61,9 +76,9 @@ namespace Book_Borrow_App
         private static void OpenBookInfoPanel(Book book)
         {
             var bookList = new List<string> { book.InfoPanel() };
-            bookList.Insert(0, book.Info.Title);
+            bookList.Insert(0, "Book");
 
-            var menuActions = bookList.ToDictionary(book => book, act => (Action)(null));
+            var menuActions = bookList.ToDictionary(book => book, act => (Action)null);
             menuActions["Back to Main Menu"] = () => Main();
             var print = new Print(menuActions);
             print.PrintMenu();
@@ -72,9 +87,9 @@ namespace Book_Borrow_App
         private static void OpenUserInfoPanel(User user)
         {
             var userList = new List<string> { user.InfoPanel() };
-            userList.Insert(0, user.Name);
+            userList.Insert(0, "User");
 
-            var menuActions = userList.ToDictionary(book => book, act => (Action)(null));
+            var menuActions = userList.ToDictionary(user => user, act => (Action)null);
             menuActions["Manage User Books"] = () => ManageUserBooks(user);
             menuActions["Back to Main Menu"] = () => Main();
 
@@ -84,25 +99,27 @@ namespace Book_Borrow_App
 
         private static void ManageUserBooks(User user)
         {
-            var books = user.BorrowedBooks.Select(b => b).ToList();
+            var books = user.BorrowedBooks.ToList();
 
             var menuActions = new Dictionary<string, Action>();
-            menuActions.Add(user.Name, (Action) null);
+            menuActions.Add(user.Name, null);
 
             for (int i = 0; i < books.Count; i++)
             {
                 int bookIndex = i;
-                menuActions[books.ElementAt(i).Print()] = () => user.Return(books.ElementAt(bookIndex));
+                var book = books.ElementAt(bookIndex);
+                menuActions[book.Print()] = null;
             }
             menuActions.Add("Borrow Book", () =>
             {
-                var bookList = FileManager.LoadBooks().Select(info => new Book(info)).ToList();
+                var bookList = FileManager.LoadBooks().Select(info => new Book(info)).Where(b => !b.IsBorrowed).ToList();
                 var bookActions = new Dictionary<string, Action>();
-                bookActions.Add("Borrow Book", (Action)null);
+                bookActions.Add("Borrow Book", null);
                 for (int i = 0; i < bookList.Count; i++)
                 {
                     int bookIndex = i;
-                    bookActions[bookList.ElementAt(i).Print()] = () => user.Borrow(bookList.ElementAt(bookIndex));
+                    var book = bookList.ElementAt(bookIndex);
+                    bookActions[book.Print()] = () => ManageBookBorrowing(user, book);
                 }
                 bookActions.Add("Back to User Menu", () => ManageUserBooks(user));
                 var print = new Print(bookActions);
@@ -110,6 +127,19 @@ namespace Book_Borrow_App
             });
             menuActions.Add("Back to Main Menu", () => Main());
 
+            var print = new Print(menuActions);
+            print.PrintMenu();
+        }
+
+        private static void ManageBookBorrowing(User user, Book book)
+        {
+            user.Borrow(ref book);
+            book.Info.borrowedBy = user;
+
+            FileManager.SaveUsers(users);
+            FileManager.SaveBooks(books.Select(b => b.Info).ToList());
+
+            var menuActions = new Dictionary<string, Action>() { { "Book Borrowed", null }, { "Back to User Menu", () => ManageUserBooks(user) } };
             var print = new Print(menuActions);
             print.PrintMenu();
         }

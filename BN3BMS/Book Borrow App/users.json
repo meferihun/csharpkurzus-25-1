@@ -1,0 +1,14 @@
+[
+  {
+    "Id": 1,
+    "Name": "John Doe",
+    "Sex": "M",
+    "BorrowedBookTitles": []
+  },
+  {
+    "Id": 2,
+    "Name": "Jane Smith",
+    "Sex": "F",
+    "BorrowedBookTitles": []
+  }
+]

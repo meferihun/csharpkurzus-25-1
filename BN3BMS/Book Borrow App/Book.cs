@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Book_Borrow_App
 {
-    public partial class Book
+    public class Book
     {
         public BookInfo Info { get; private set; }
         public bool IsBorrowed { get; private set; }
@@ -14,12 +14,12 @@ namespace Book_Borrow_App
         public Book(BookInfo info)
         {
             Info = info;
-            IsBorrowed = false;
+            IsBorrowed = info.borrowedBy != null;
         }
 
         public void Borrow()
         {
-            if (IsBorrowed) throw new InvalidOperationException("A könyv már ki van kölcsönözve.");
+           if (IsBorrowed) throw new InvalidOperationException("A könyv már ki van kölcsönözve.");
             IsBorrowed = true;
         }
 
@@ -41,7 +41,7 @@ namespace Book_Borrow_App
                 $"Author: {Info.Author}\n" +
                 $"Release Year: {Info.Year}\n" +
                 $"Genre: {Info.Genre}\n" +
-                $"Borrowed By: {(Info.borrowedBy == null ? "No One": Info.borrowedBy.Name)}";
+                $"Borrowed By: {(Info.borrowedBy == null ? "No One": Info.borrowedBy.Name)}\n";
         }
     }
 

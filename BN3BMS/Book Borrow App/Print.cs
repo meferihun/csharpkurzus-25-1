@@ -54,7 +54,7 @@ namespace Book_Borrow_App
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             var title = _menuActions.Keys.ElementAt(0);
-            Console.WriteLine(title);
+            Console.WriteLine($"\t{title}");
             Console.ResetColor(); 
 
                 int index = 1; 
@@ -65,12 +65,12 @@ namespace Book_Borrow_App
                     if (index == CurrentIndex && option.Value != null)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"---> {option.Key} <---");
+                        Console.WriteLine($"{option.Key} <---");
                         Console.ResetColor();
                     }
                     else
                     {
-                        Console.WriteLine($"     {option.Key}     ");
+                        Console.WriteLine($"{option.Key}");
                     }
                     index++;
                 }
